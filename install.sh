@@ -13,6 +13,7 @@
 
 set -euo pipefail
 
+# ── Colours ───────────────────────────────────────────────────────────────────
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
 GREEN='\033[0;32m'
@@ -20,17 +21,20 @@ CYAN='\033[0;36m'
 BOLD='\033[1m'
 RESET='\033[0m'
 
+# ── Helpers ───────────────────────────────────────────────────────────────────
 info()    { echo -e "${CYAN}${BOLD}[push-review]${RESET} $*"; }
 success() { echo -e "${GREEN}${BOLD}[push-review]${RESET} $*"; }
 warn()    { echo -e "${YELLOW}${BOLD}[push-review]${RESET} ⚠  $*"; }
 error()   { echo -e "${RED}${BOLD}[push-review]${RESET} ✗  $*"; exit 1; }
 divider() { echo -e "${CYAN}──────────────────────────────────────────────${RESET}"; }
 
+# ── Remote URLs ───────────────────────────────────────────────────────────────
 REPO_BASE_URL="https://raw.githubusercontent.com/rootstrap/ai-git-hooks/main"
 HOOK_URL="${REPO_BASE_URL}/hook/pre-push"
 TEMPLATES_URL="${REPO_BASE_URL}/templates"
 TEMPLATE="base"
 
+# ── Argument parsing ──────────────────────────────────────────────────────────
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --template)
@@ -45,6 +49,7 @@ done
 
 TEMPLATE_URL="${TEMPLATES_URL}/${TEMPLATE}.yml"
 
+# ── Validate git repository ───────────────────────────────────────────────────
 if ! git rev-parse --show-toplevel >/dev/null 2>&1; then
   error "Not inside a git repository. Run this from the root of your project."
 fi
@@ -59,10 +64,12 @@ info "Installing push-review..."
 echo -e "  Template: ${BOLD}${TEMPLATE}${RESET}"
 divider
 
+# ── Check for curl ────────────────────────────────────────────────────────────
 if ! command -v curl >/dev/null 2>&1; then
   error "curl is required but not found."
 fi
 
+# ── Download and install hook ─────────────────────────────────────────────────
 info "Downloading hook script..."
 HOOK_TMP=$(mktemp)
 trap 'rm -f "$HOOK_TMP"' EXIT
@@ -89,6 +96,7 @@ cp "$HOOK_TMP" "$HOOK_DEST"
 chmod +x "$HOOK_DEST"
 success "Hook installed ✓"
 
+# ── Download config template ──────────────────────────────────────────────────
 if [ -f "$CONFIG_DEST" ]; then
   warn ".push-review.yml already exists. Skipping config download."
   warn "To reset to the ${TEMPLATE} template, delete .push-review.yml and re-run."
@@ -105,6 +113,7 @@ else
   success "Config written to .push-review.yml ✓"
 fi
 
+# ── Check for Claude Code CLI ─────────────────────────────────────────────────
 divider
 info "Checking dependencies..."
 
@@ -113,11 +122,12 @@ if command -v claude >/dev/null 2>&1; then
   success "Claude Code CLI found (${CLAUDE_VERSION}) ✓"
 else
   warn "Claude Code CLI not found."
-  warn "The hook will run tool checks but skip AI review until it is installed."
-  warn "Install:      ${BOLD}npm install -g @anthropic-ai/claude-code${RESET}"
+  warn "The hook will block pushes until it is installed and authenticated."
+  warn "Install:      ${BOLD}curl -fsSL https://claude.ai/install.sh | bash${RESET}"
   warn "Authenticate: ${BOLD}claude /login${RESET}"
 fi
 
+# ── Check runtimes declared in config ─────────────────────────────────────────
 if [ -f "$CONFIG_DEST" ]; then
   TOOL_BINARIES=$(awk '
     /^tools:/{flag=1;next}
@@ -155,6 +165,7 @@ $TOOL_BINARIES
 EOF
 fi
 
+# ── Done ──────────────────────────────────────────────────────────────────────
 divider
 echo -e "${GREEN}${BOLD}  push-review installed successfully!${RESET}"
 divider
