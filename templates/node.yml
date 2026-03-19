@@ -1,0 +1,49 @@
+# =============================================================================
+# push-review configuration — Node.js
+# https://github.com/rootstrap/ai-git-hooks
+# =============================================================================
+
+agent:
+  model: claude-sonnet-4-20250514
+
+review:
+  target_branch: main
+  context_lines: 10
+  max_lines_for_full_file: 300
+
+  focus:
+    - security
+    - logic_errors
+    - test_coverage
+    - performance
+    - naming_and_readability
+
+  blocking_categories:
+    - security
+    - logic_errors
+
+  warning_categories:
+    - test_coverage
+    - performance
+    - naming_and_readability
+
+tools:
+  - name: eslint
+    command: npx eslint {changed_files}
+    extensions: [".js", ".jsx", ".mjs", ".cjs"]
+
+  - name: prettier
+    command: npx prettier --check {changed_files}
+    extensions: [".js", ".jsx", ".mjs", ".cjs", ".json", ".css", ".md"]
+
+  - name: jest
+    command: npx jest --passWithNoTests --findRelatedTests {changed_files}
+    extensions: [".js", ".jsx", ".mjs", ".cjs"]
+
+ignore_paths:
+  - "*.lock"
+  - "package-lock.json"
+  - "yarn.lock"
+  - "dist/**"
+  - "build/**"
+  - "coverage/**"
