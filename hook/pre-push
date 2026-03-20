@@ -243,13 +243,12 @@ success "All tool checks passed."
 divider
 
 if ! command -v claude >/dev/null 2>&1; then
-  warn "Claude Code CLI not found. Skipping AI review."
-  warn "Install it: ${BOLD}https://docs.anthropic.com/en/docs/claude-code${RESET}"
-  warn "Then authenticate: ${BOLD}claude /login${RESET}"
-  echo ""
-  success "Tool checks passed. Push proceeding without AI review."
+  error "Claude Code CLI not found. Cannot perform AI review."
+  error "Install it: ${BOLD}curl -fsSL https://claude.ai/install.sh | bash${RESET}"
+  error "Authenticate: ${BOLD}claude /login${RESET}"
+  error "To skip all checks: ${BOLD}git push --no-verify${RESET}"
   divider
-  exit 0
+  exit 1
 fi
 
 # ── Collect diff ──────────────────────────────────────────────────────────────
