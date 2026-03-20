@@ -14,6 +14,11 @@
 # We re-enable -e after sections that intentionally tolerate specific failures.
 set -euo pipefail
 
+# ── Version ───────────────────────────────────────────────────────────────────
+HOOK_VERSION="2.0.0"
+REMOTE_VERSION_URL="https://raw.githubusercontent.com/rootstrap/ai-git-hooks/main/VERSION"
+UPDATE_CHECK_CACHE="${HOME}/.push-review-update-check"
+
 # ── Colours ───────────────────────────────────────────────────────────────────
 RED='\033[0;31m'
 YELLOW='\033[1;33m'
@@ -442,8 +447,40 @@ echo -e "  ${BOLD}Blocking issues:${RESET} ${BLOCKING_COUNT:-0}"
 echo -e "  ${BOLD}Warnings:${RESET}        ${WARNING_COUNT:-0}"
 divider
 
+# ── Version check ─────────────────────────────────────────────────────────────
+# Runs at most once per day. Non-blocking — never exits non-zero.
+check_for_updates() {
+  local today
+  today=$(date +%Y-%m-%d)
+
+  # Skip if already checked today
+  if [ -f "$UPDATE_CHECK_CACHE" ] && [ "$(cat "$UPDATE_CHECK_CACHE")" = "$today" ]; then
+    return 0
+  fi
+
+  # Skip if curl is not available
+  if ! command -v curl >/dev/null 2>&1; then
+    return 0
+  fi
+
+  local remote_version
+  remote_version=$(curl -fsSL --max-time 3 "$REMOTE_VERSION_URL" 2>/dev/null | tr -d '[:space:]') || return 0
+
+  # Cache today's date regardless of result
+  echo "$today" > "$UPDATE_CHECK_CACHE" 2>/dev/null || true
+
+  # Compare versions — only warn if remote is strictly different from current
+  if [ -n "$remote_version" ] && [ "$remote_version" != "$HOOK_VERSION" ]; then
+    divider
+    warn "Your hook is outdated (v${HOOK_VERSION} → v${remote_version})"
+    warn "Update: ${BOLD}curl -fsSL https://raw.githubusercontent.com/rootstrap/ai-git-hooks/main/install.sh | bash${RESET}"
+    divider
+  fi
+}
+
 # ── Final verdict ─────────────────────────────────────────────────────────────
 if [ "$VERDICT" = "BLOCK" ]; then
+  check_for_updates
   echo ""
   error "Push ${BOLD}blocked${RESET} — ${BLOCKING_COUNT} blocking issue(s) found."
   error "Fix the issues above and push again."
@@ -451,6 +488,7 @@ if [ "$VERDICT" = "BLOCK" ]; then
   echo ""
   exit 1
 else
+  check_for_updates
   echo ""
   success "AI review passed. Push proceeding. ✅"
   if [ "${WARNING_COUNT:-0}" -gt 0 ]; then
