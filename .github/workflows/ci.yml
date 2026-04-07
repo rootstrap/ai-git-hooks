@@ -1,0 +1,77 @@
+name: CI
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  validate:
+    name: Validate shell scripts
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check hook syntax
+        run: bash -n hook/pre-push
+
+      - name: Check installer syntax
+        run: bash -n install.sh
+
+      - name: Verify hook is executable
+        run: |
+          if [ ! -x hook/pre-push ]; then
+            echo "hook/pre-push is not executable. Run: chmod +x hook/pre-push"
+            exit 1
+          fi
+
+      - name: Verify install.sh is executable
+        run: |
+          if [ ! -x install.sh ]; then
+            echo "install.sh is not executable. Run: chmod +x install.sh"
+            exit 1
+          fi
+
+      - name: Ensure release-please files were not manually modified
+        run: |
+          release_please_files="VERSION CHANGELOG.md .release-please-manifest.json release-please-config.json"
+          touched=""
+          for f in $release_please_files; do
+            if git diff --name-only origin/main...HEAD | grep -qF "$f"; then
+              touched="$touched $f"
+            fi
+          done
+          if [ -n "$touched" ]; then
+            echo "The following files are managed by release-please and must not be edited manually:"
+            for f in $touched; do
+              echo "  •$f"
+            done
+            echo ""
+            echo "Version bumps and changelog updates are handled automatically when a"
+            echo "release-please PR is merged. Do not edit these files directly."
+            exit 1
+          fi
+          echo "No release-please files were manually modified ✓"
+
+      - name: Verify all templates are valid YAML
+        run: |
+          for f in templates/*.yml; do
+            echo "Checking $f..."
+            python3 -c "import sys, yaml; yaml.safe_load(open('$f'))" \
+              && echo "  $f ✓" \
+              || { echo "  $f is invalid YAML"; exit 1; }
+          done
+
+      - name: Verify templates contain required keys
+        run: |
+          required_keys="agent review tools ignore_paths"
+          for f in templates/*.yml; do
+            for key in $required_keys; do
+              if ! grep -q "^${key}:" "$f"; then
+                echo "$f is missing required top-level key: $key"
+                exit 1
+              fi
+            done
+            echo "$f ✓"
+          done
