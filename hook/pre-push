@@ -323,14 +323,17 @@ STATIC
   printf '\n## Changed files\n%s\n' "$CHANGED_FILES_LIST"
   printf '\n## Focus areas\n%s\n' "$FOCUS_AREAS"
   printf '\n## Categories\n'
-  printf 'Classify every finding into exactly one of these categories:\n'
-  printf '%s\n' "- Blocking categories (will prevent the push): $BLOCKING_CATS"
-  printf '%s\n' "- Warning categories (informational only): $WARNING_CATS"
+  printf 'The category field in each FINDING must contain ONLY one of these exact strings.\n'
+  printf 'Do not paraphrase, describe, or group them — use the exact string as written.\n\n'
+  printf 'Blocking categories (severity: blocking — will prevent the push): %s\n' "$BLOCKING_CATS"
+  printf 'Warning categories (severity: warning — will NOT prevent the push): %s\n' "$WARNING_CATS"
+  printf '\nExample of correct usage: "category: security"\n'
+  printf 'Example of INCORRECT usage: "category: Blocking categories (will prevent the push)"\n'
   printf '\n## Response format\n'
   printf 'You MUST respond using ONLY this exact format. No prose outside of it.\n\n'
   printf 'For each finding:\n\n'
   printf 'FINDING\n'
-  printf 'category: <one of the categories above>\n'
+  printf 'category: <exact category string from the list above>\n'
   printf 'severity: <blocking|warning>\n'
   printf 'file: <filename>\n'
   printf 'line: <line number or range, or "N/A">\n'
