@@ -30,15 +30,16 @@ review:
 tools:
   - name: eslint
     command: npx eslint {changed_files}
-    extensions: [".js", ".jsx", ".mjs", ".cjs"]
+    extensions: [".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx"]
 
   - name: prettier
     command: npx prettier --check {changed_files}
-    extensions: [".js", ".jsx", ".mjs", ".cjs", ".json", ".css", ".md"]
+    extensions:
+      [".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx", ".json", ".css", ".md"]
 
   - name: jest
     command: npx jest --passWithNoTests --findRelatedTests {changed_files}
-    extensions: [".js", ".jsx", ".mjs", ".cjs"]
+    extensions: [".js", ".jsx", ".mjs", ".cjs", ".ts", ".tsx"]
 
 ignore_paths:
   - "*.lock"
