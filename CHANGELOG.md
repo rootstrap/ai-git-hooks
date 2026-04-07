@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.1](https://github.com/rootstrap/ai-git-hooks/compare/v2.1.0...v2.1.1) (2026-04-07)
+
+
+### Bug Fixes
+
+* **pre-push:** enhance review instructions for better context access ([bd7c3d1](https://github.com/rootstrap/ai-git-hooks/commit/bd7c3d1e478cfa55b6c737f780f46096d7304ab0))
+
 ## [2.1.0](https://github.com/rootstrap/ai-git-hooks/compare/v2.0.0...v2.1.0) (2026-04-07)
 
 
