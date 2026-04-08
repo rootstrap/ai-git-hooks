@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.2.0](https://github.com/rootstrap/ai-git-hooks/compare/v2.1.2...v2.2.0) (2026-04-08)
+
+
+### Features
+
+* display hook version upon installation ([452e766](https://github.com/rootstrap/ai-git-hooks/commit/452e766301846e26932e674046b654677350ac4d))
+
 ## [2.1.2](https://github.com/rootstrap/ai-git-hooks/compare/v2.1.1...v2.1.2) (2026-04-08)
 
 
