@@ -15,7 +15,7 @@
 set -euo pipefail
 
 # ── Version ───────────────────────────────────────────────────────────────────
-HOOK_VERSION="2.0.0"
+HOOK_VERSION="2.1.1" # x-release-please-version
 REMOTE_VERSION_URL="https://raw.githubusercontent.com/rootstrap/ai-git-hooks/main/VERSION"
 UPDATE_CHECK_CACHE="${HOME}/.push-review-update-check"
 

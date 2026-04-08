@@ -1,6 +1,11 @@
 {
   "release-type": "simple",
   "packages": {
-    ".": {}
+    ".": {
+      "extra-files": [
+        "VERSION",
+        "hook/pre-push"
+      ]
+    }
   }
 }
