@@ -86,6 +86,9 @@ if ! bash -n "$HOOK_TMP"; then
   error "Downloaded hook has a syntax error. Please report this at https://github.com/rootstrap/ai-git-hooks."
 fi
 
+# Extract the version from the downloaded hook before installing
+HOOK_VERSION=$(grep 'HOOK_VERSION=' "$HOOK_TMP" | head -1 | sed 's/.*HOOK_VERSION="\([^"]*\)".*/\1/')
+
 if [ -f "$HOOK_DEST" ]; then
   BACKUP="${HOOK_DEST}.backup.$(date +%Y%m%d%H%M%S)"
   warn "Existing pre-push hook found. Backing up to ${BACKUP}"
@@ -94,7 +97,7 @@ fi
 
 cp "$HOOK_TMP" "$HOOK_DEST"
 chmod +x "$HOOK_DEST"
-success "Hook installed ✓"
+success "Hook installed (v${HOOK_VERSION}) ✓"
 
 # ── Download config template ──────────────────────────────────────────────────
 if [ -f "$CONFIG_DEST" ]; then
@@ -167,7 +170,7 @@ fi
 
 # ── Done ──────────────────────────────────────────────────────────────────────
 divider
-echo -e "${GREEN}${BOLD}  push-review installed successfully!${RESET}"
+echo -e "${GREEN}${BOLD}  push-review v${HOOK_VERSION} installed successfully!${RESET}"
 divider
 echo ""
 echo -e "  Edit ${BOLD}.push-review.yml${RESET} to configure tools and review behaviour."
