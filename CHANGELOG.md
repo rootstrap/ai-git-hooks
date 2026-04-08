@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.1.2](https://github.com/rootstrap/ai-git-hooks/compare/v2.1.1...v2.1.2) (2026-04-08)
+
+
+### Bug Fixes
+
+* update release configuration ([5ee951e](https://github.com/rootstrap/ai-git-hooks/commit/5ee951e354a7b01605719400e2e9e897e4a4bcb2))
+
 ## [2.1.1](https://github.com/rootstrap/ai-git-hooks/compare/v2.1.0...v2.1.1) (2026-04-07)
 
 
